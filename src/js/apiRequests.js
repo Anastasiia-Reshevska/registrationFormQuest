@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 export function fetchCountryData() {
-  const urlCountries =
-    'http://quest-registration-api.groupbwt.com/api/countries';
+  const urlCountries = 'http://quest-registration-api.groupbwt.com/api/countries';
   return axios.get(urlCountries).then((response) => {
     const countries = response.data.countries;
     return countries;

@@ -17,7 +17,6 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
       script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsKey}`;
 
       script.addEventListener('load', () => {
-        console.log('Google Maps API загружен');
         myMap();
       });
       document.body.appendChild(script);
@@ -140,6 +139,8 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
       const img = document.getElementById('preview-img');
       if (!input || !img) return;
 
+      img.classList.add('hide');
+
       input.addEventListener('change', function () {
         const file = input.files[0];
         if (!file) return;
@@ -148,6 +149,7 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
           const reader = new FileReader();
           reader.addEventListener('load', function () {
             img.src = reader.result;
+            img.classList.remove('hide');
           });
           reader.readAsDataURL(file);
         }
@@ -200,17 +202,41 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
 
       urlPutsStep1(data)
         .then((response) => {
+          $('#email')
+            .parsley()
+            .removeError('serverError', { updateClass: true });
+
           localStorage.setItem('currentStep', '2');
           contentStepFirst.classList.add('hide');
-          contentStepSecond.classList.remove('hide');
+
           initStep2();
         })
-        .catch((error) =>
-          console.error('Error', error.response?.data || error)
-        );
+        .catch((error) => {
+          const emailField = $('#email').parsley();
+
+          emailField.removeError('serverError', { updateClass: true });
+
+          if (
+            error.response && error.response.data && error.response.data.errors.email
+          ) {
+            const msg = error.response.data.errors.email[0];
+
+            emailField.addError('serverError', {
+              message: msg,
+              updateClass: true,
+            });
+          } else {
+            console.error('Error', error.response?.data || error);
+          }
+        });
     }
 
+      $('#email').on('input', function () {
+        $(this).parsley().removeError('serverError', { updateClass: true });
+      });
+    
     function initStep2() {
+      contentStepSecond.classList.remove('hide');
       previewImage();
 
       btnStepSecond.addEventListener('click', function (e) {
@@ -256,6 +282,10 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
           PutDataFormStep1();
         }
       });
+    }
+ 
+    if (currentStep === '2') { 
+      initStep2();
     }
   });
 })();

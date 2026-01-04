@@ -33,7 +33,6 @@ import { getListMembers } from './apiRequests.js';
     titleTable.appendChild(titleRowThead);
 
     const tbody = document.createElement('tbody');
-    const td = document.createElement('td');
 
     members.forEach((member) => {
       const titleRowTbody = document.createElement('tr');
@@ -43,8 +42,7 @@ import { getListMembers } from './apiRequests.js';
         image.classList.add('photo-default');
         image.src = '/images/photo-default.jpg';
       } else {
-        image.src =
-          `http://quest-registration-api.groupbwt.com/` + member.photo_url;
+        image.src = `http://quest-registration-api.groupbwt.com/` + member.photo_url;
       }
 
       photo.textContent = `${member.photo_url}`;
@@ -60,7 +58,10 @@ import { getListMembers } from './apiRequests.js';
       titleRowTbody.appendChild(tdReportSubject);
 
       const tdEmail = document.createElement('td');
-      tdEmail.textContent = `${member.email}`;
+      const aEmail = document.createElement('a');
+      aEmail.textContent = member.email;
+      aEmail.href = `mailto:${member.email}`;
+      tdEmail.appendChild(aEmail);
       titleRowTbody.appendChild(tdEmail);
 
       tbody.appendChild(titleRowTbody);
