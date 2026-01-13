@@ -3,15 +3,8 @@ import { getListMembers } from './apiRequests.js';
 (function () {
   getListMembers()
     .then((response) => {
-    const data = response.data;
+      const data = response.data;
     if (!data) return;
-    const maxIndex = data.data.length;
-    const allMembers = document.querySelectorAll('.all-members');
-    if (!allMembers) return;
-    allMembers.forEach((item) => {
-      const textMembers = `All members: ${maxIndex}`;
-      item.textContent = textMembers;
-    });
     createTableMembers(data.data);
   });
 
@@ -38,16 +31,15 @@ import { getListMembers } from './apiRequests.js';
       const titleRowTbody = document.createElement('tr');
       const photo = document.createElement('td');
       const image = document.createElement('img');
-      if (member.photo_url === null) {
+      if (member.photo === null) {
         image.classList.add('photo-default');
         image.src = '/images/photo-default.jpg';
       } else {
-        image.src = `http://quest-registration-api.groupbwt.com/` + member.photo_url;
+        image.src = `http://quest-registration-api.groupbwt.com/storage/${member.photo}`;
       }
 
-      photo.textContent = `${member.photo_url}`;
-      titleRowTbody.appendChild(photo);
       photo.appendChild(image);
+      titleRowTbody.appendChild(photo);
 
       const tdName = document.createElement('td');
       tdName.textContent = `${member.firstname} ${member.lastname}`;

@@ -5,6 +5,8 @@ import intlTelInput from 'intl-tel-input';
 import 'bootstrap-datepicker';
 import 'bootstrap-datepicker/dist/locales/bootstrap-datepicker.en-GB.min.js';
 import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
+import { updateListMembers } from './apiRequests.js';
+import { getListMembers } from './apiRequests.js';
 
 (function () {
   document.addEventListener('DOMContentLoaded', function () {
@@ -50,7 +52,8 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
     const iti = intlTelInput(phoneInput, {
       initialCountry: 'ua',
       separateDialCode: true,
-      utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.0/build/js/utils.js',
+      utilsScript:
+        'https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.0/build/js/utils.js',
     });
 
     const errorMsg = document.querySelector('#error-msg');
@@ -134,15 +137,30 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
       }
     });
 
+    getListMembers()
+      .then((response) => {
+      const data = response.data;
+      if (!data) return;
+
+      const maxIndex = data.data[0].id;
+      const allMembers = document.querySelectorAll('.all-members');
+      if (!allMembers) return;
+      allMembers.forEach((item) => {
+        const textMembers = `All members: ${maxIndex}`;
+        item.textContent = textMembers;
+      });
+    });
+
+    const fileInput = document.getElementById('photo_url');
+
     function previewImage() {
-      const input = document.getElementById('image-upload');
       const img = document.getElementById('preview-img');
-      if (!input || !img) return;
+      if (!fileInput || !img) return;
 
       img.classList.add('hide');
 
-      input.addEventListener('change', function () {
-        const file = input.files[0];
+      fileInput.addEventListener('change', function () {
+        const file = fileInput.files[0];
         if (!file) return;
 
         if (file) {
@@ -161,7 +179,9 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
       if (!pageUrl) return;
 
       const encodeUrl = encodeURIComponent(pageUrl);
-      const postText = encodeURIComponent("I'm sharing an interesting pet project with you.");
+      const postText = encodeURIComponent(
+        "I'm sharing an interesting pet project with you."
+      );
       const shareUrls = {
         facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeUrl}`,
         twitter: `https://twitter.com/intent/tweet?url=${encodeUrl}&text=${postText}`,
@@ -202,6 +222,9 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
 
       urlPutsStep1(data)
         .then((response) => {
+          const userId = response.data.members[0].id;
+          localStorage.setItem('userId', userId);
+
           $('#email')
             .parsley()
             .removeError('serverError', { updateClass: true });
@@ -216,9 +239,8 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
 
           emailField.removeError('serverError', { updateClass: true });
 
-          if (
-            error.response && error.response.data && error.response.data.errors.email
-          ) {
+          if (error.response &&error.response.data && error.response.data.errors.email)
+          {
             const msg = error.response.data.errors.email[0];
 
             emailField.addError('serverError', {
@@ -231,10 +253,18 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
         });
     }
 
-      $('#email').on('input', function () {
-        $(this).parsley().removeError('serverError', { updateClass: true });
-      });
-    
+    $('#email').on('input', function () {
+      $(this).parsley().removeError('serverError', { updateClass: true });
+    });
+
+    function PatchDataFormStep2() {
+      const userIdGet = localStorage.getItem('userId');
+      const formData = new FormData(contentStepSecond);
+      const data = Object.fromEntries(formData.entries());
+
+      return updateListMembers(userIdGet, data);
+    }
+
     function initStep2() {
       contentStepSecond.classList.remove('hide');
       previewImage();
@@ -247,6 +277,7 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
           localStorage.setItem('currentStep', '3');
           contentStepSecond.classList.add('hide');
           contentStepThird.classList.remove('hide');
+          PatchDataFormStep2();
           initStep3();
         }
       });
@@ -280,12 +311,17 @@ import { fetchCountryData, urlPutsStep1 } from './apiRequests.js';
 
         if (isValidFirstStepForm && isValidPhone) {
           PutDataFormStep1();
+          getListMembers();
         }
       });
     }
- 
-    if (currentStep === '2') { 
+
+    if (currentStep === '2') {
       initStep2();
+    }
+
+    if (currentStep === '3') {
+      initStep3();
     }
   });
 })();

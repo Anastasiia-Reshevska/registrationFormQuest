@@ -99,10 +99,9 @@ textarea.parsley-error {
 
 #preview-img {
   max-width: 100%;
-  width: 570px;
-  max-height: 250px;
+  width: 300px;
+  height: auto;
   margin-top: 20px;
-  object-fit: cover;
 }
 
 .table {
@@ -158,6 +157,7 @@ textarea.parsley-error {
 }
 
 .all-members {
+  margin-top: 20px;
   font-weight: 600;
   text-align: center;
 }

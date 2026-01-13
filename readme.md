@@ -33,7 +33,8 @@ This project is a multi-step conference registration form built using modern fro
 3. To run the project in development mode:
    ```sh
    npm run dev
-   ```
+   localhost:3000/
+   
 4. To build for production:
    ```sh
    npm run build

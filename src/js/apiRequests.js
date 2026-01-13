@@ -14,6 +14,11 @@ export function urlPutsStep1(data) {
   return response;
 }
 
+export function updateListMembers(userIdGet, data) {
+  const url = `http://quest-registration-api.groupbwt.com/api/members/${userIdGet}`;
+  return axios.patch(url, data);
+}
+
 export function getListMembers() {
   const urlMembers = 'http://quest-registration-api.groupbwt.com/api/members?per_page=100';
   return axios.get(urlMembers)
